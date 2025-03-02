@@ -30,7 +30,20 @@ def read(session: SessionDep):
 def show(id: int, session: SessionDep):
   statement = select(Account).where(Account.id == id)
   account = session.exec(statement).first()
-  print(account.parent)
   if account is None:
     raise HTTPException(status_code=404, detail='Account not found')
   return account
+
+# update
+@router.put('/{id}', response_model=AccountPublic)
+def update(id: int, account: AccountUpdate, session: SessionDep):
+  db_account = session.get(Account, id)
+  if not account:
+    raise HTTPException(status_code=400, detail='Account not found')
+  
+  account_data = account.model_dump(exclude_unset=True)
+  db_account.sqlmodel_update(account_data)
+  session.add(db_account)
+  session.commit()
+  session.refresh(db_account)
+  return db_account
