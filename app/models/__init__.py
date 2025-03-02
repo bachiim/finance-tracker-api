@@ -1,1 +1,2 @@
-from .Accounts import Accounts
+from .Account import Account
+from .Model import Model
